@@ -1,0 +1,15 @@
+# Secrets. Never commit.
+.env
+.env.*
+!.env.example
+
+node_modules/
+dist/
+dist-tests/
+*.tsbuildinfo
+
+*.log
+npm-debug.log*
+.DS_Store
+
+*.bak

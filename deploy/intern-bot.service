@@ -1,0 +1,75 @@
+# intern — Telegram bot as a systemd service.
+#
+# The bot is a long-running daemon by design: it holds the Telegram long-poll
+# connection open, runs auto-refreshing panels on timers, and waits out countdowns
+# that can be hours long. Started from an SSH session it dies with that session —
+# usually at the least convenient moment, since the whole point is to be alive at
+# T-0 for a drop nobody is awake for.
+#
+# Install:
+#   sudo cp deploy/intern-bot.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now intern-bot
+#   systemctl status intern-bot
+#   journalctl -u intern-bot -f
+#
+# Adjust User= and the paths below if intern does not live in /root/intern/intern.
+
+[Unit]
+Description=intern — OpenSea SeaDrop mint bot (Telegram)
+Documentation=https://github.com/your/intern
+# Telegram and the RPC endpoints are both remote, so there is no point starting
+# before the network is actually usable.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/intern/intern
+
+# .env holds PRIVATE_KEYS and TELEGRAM_BOT_TOKEN. systemd reads it directly rather
+# than the process shelling out for it, so the values never pass through a command
+# line — /proc/<pid>/cmdline is world-readable and would expose them to every user
+# on the box.
+EnvironmentFile=/root/intern/intern/.env
+
+ExecStart=/usr/bin/node dist/bot/index.js
+
+# Always restart, including on a clean exit. A bot that has stopped is a bot that
+# misses the mint, and every exit path worth distinguishing is already fatal on
+# purpose: a bad token or a second instance polling the same token exits non-zero
+# and will restart-loop visibly in the journal rather than fail silently.
+Restart=always
+RestartSec=5
+
+# Do not give up after the default five attempts. A drop can be hours out, and an
+# RPC provider having a bad ten minutes must not take the bot down for the night.
+StartLimitIntervalSec=0
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=intern-bot
+
+# Shutdown: SIGINT is what the bot installs a handler for, and it uses it to abort
+# in-flight runs rather than leaving transactions half-dispatched.
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+# Hardening. This process holds private keys, so it gets no more of the system than
+# it needs: no new privileges, a private /tmp, read-only everything except its own
+# directory, and no access to other users' home directories.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/root/intern/intern
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,43 @@
+{
+  "name": "intern",
+  "version": "1.0.0",
+  "description": "NFT mint sniper for OpenSea SeaDrop — CLI + Telegram bot. Pre-signed transactions, clock-corrected T-0 firing, multi-RPC blast.",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "intern": "dist/cli/index.js",
+    "intern-bot": "dist/bot/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli/index.js",
+    "bot": "node dist/bot/index.js",
+    "dev": "node --experimental-strip-types src/cli/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test dist-tests/tests/*.test.js",
+    "pretest": "tsc -p tsconfig.test.json"
+  },
+  "keywords": [
+    "nft",
+    "mint",
+    "sniper",
+    "seadrop",
+    "opensea",
+    "telegram",
+    "ethereum",
+    "base",
+    "robinhood",
+    "cli"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "dotenv": "16.4.7",
+    "ethers": "6.13.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "typescript": "5.7.3"
+  }
+}
