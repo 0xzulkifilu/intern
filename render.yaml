@@ -1,0 +1,29 @@
+services:
+  - type: worker
+    name: intern-bot
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm run bot
+    autoDeploy: true
+    envVars:
+      - key: CHAIN
+        value: robinhood
+      - key: PRIVATE_KEYS
+        sync: false
+      - key: RPC_URL_ROBINHOOD
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_ALLOWED_IDS
+        sync: false
+      - key: OPENSEA_API_KEY
+        sync: false
+      - key: QUANTITY
+        value: "1"
+      - key: GAS_LIMIT
+        value: "250000"
+      - key: LEAD_MS
+        value: "0"
+      - key: RECEIPT_TIMEOUT_MS
+        value: "90000"

@@ -432,6 +432,28 @@ npm test          # node:test over the pure logic
 npm run dev       # run the CLI from source
 ```
 
+## Deploy the Telegram bot on Render
+
+This project is a long-running Telegram worker, not an HTTP web server. Deploy it
+as a Render **Background Worker** using the included [`render.yaml`](render.yaml):
+
+```text
+Build command:  npm ci && npm run build
+Start command:  npm run bot
+```
+
+The Blueprint selects `robinhood` and creates secret environment-variable
+placeholders for `PRIVATE_KEYS`, `RPC_URL_ROBINHOOD`, `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_ALLOWED_IDS`, and `OPENSEA_API_KEY`. Fill these in in Render's
+Environment tab before the first deploy. `TELEGRAM_ALLOWED_IDS` is mandatory;
+the bot will refuse to start without it.
+
+For a public mint, verify the target's chain, stage, price, wallet balances and
+gas ceiling in the Telegram confirmation panel before pressing Send. A Render
+worker has no browser UI and does not need a `PORT` variable or health endpoint.
+Keep the worker to one running instance: Telegram polling rejects duplicate
+instances, and two workers could compete for the same wallet nonces.
+
 TypeScript strict, plus `noUncheckedIndexedAccess` and `noUnusedLocals`.
 
 ```
